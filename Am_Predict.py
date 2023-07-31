@@ -127,3 +127,179 @@ plt.show()
 summary = df.groupby('University Rank Category')['Chance of Admit '].describe()
 print(summary)
 
+# After performing the steps to split your data, calculate feature importance, and select important features, you can proceed with model selection and analysis. For each model, you can train, predict, and evaluate performance for each category separately.
+
+                    # import pandas as pd
+                    # from sklearn.model_selection import train_test_split
+                    # from sklearn.ensemble import RandomForestClassifier
+                    # from sklearn.linear_model import LogisticRegression
+                    # from sklearn.metrics import confusion_matrix, f1_score
+
+                    # # Load and preprocess your dataset
+                    # # df = pd.read_csv('your_dataset.csv')
+                    # # ... Preprocessing steps ...
+
+                    # # Define the categorical columns you want to one-hot encode
+                    # categorical_columns = ['University Rank Category']  # Add more columns if needed
+
+                    # # Perform one-hot encoding on categorical columns
+                    # df_encoded = pd.get_dummies(df, columns=categorical_columns, drop_first=True)
+
+                    # # Define features and target variable
+                    # X = df_encoded.drop('Chance of Admit ', axis=1)
+                    # y = df_encoded['Chance of Admit ']
+
+                    # # Split the dataset into train and test sets
+                    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+                    # # Initialize models for analysis
+                    # models = {
+                    #     'Random Forest': RandomForestClassifier(),
+                    #     'Logistic Regression': LogisticRegression()
+                    # }
+
+                    # # Loop through each University Rank Category
+                    # for category in df['University Rank Category'].unique():
+                    #     print(f"University Rank Category: {category}")
+
+                    #     # Filter data for the current category
+                    #     category_data = df_encoded[df_encoded['University Rank Category_' + category] == 1]
+
+                    #     # Prepare datasets for the current category
+                    #     X_train_category = X_train[X_train.index.isin(category_data.index)]
+                    #     X_test_category = X_test[X_test.index.isin(category_data.index)]
+                    #     y_train_category = y_train[y_train.index.isin(category_data.index)]
+                    #     y_test_category = y_test[y_test.index.isin(category_data.index)]
+
+                    #     # Train and evaluate selected models
+                    #     for model_name, model in models.items():
+                    #         print(f"\nModel: {model_name}")
+
+                    #         # Train the model
+                    #         model.fit(X_train_category, y_train_category)
+
+                    #         # Make predictions
+                    #         y_pred = model.predict(X_test_category)
+
+                    #         # Evaluate performance using confusion matrix and F1 score
+                    #         conf_matrix = confusion_matrix(y_test_category, y_pred)
+                    #         f1 = f1_score(y_test_category, y_pred)
+
+                    #         print("Confusion Matrix:\n", conf_matrix)
+                    #         print("F1 Score:", f1)
+
+                                    # import pandas as pd
+                                    # from sklearn.model_selection import train_test_split
+                                    # from sklearn.ensemble import RandomForestRegressor
+                                    # from sklearn.linear_model import LinearRegression
+                                    # from sklearn.metrics import mean_squared_error
+
+                                    # # Load your dataset
+                                    # df = pd.read_csv('Admission_Predict.csv')  # Replace with your dataset path
+
+                                    # # Define your features and target variable
+                                    # X = df[['GRE Score', 'TOEFL Score', 'SOP', 'LOR ', 'CGPA', 'Research', 'University Rating']]
+                                    # y = df['Chance of Admit ']
+
+                                    # # Perform one-hot encoding on 'University Rating' column
+                                    # categorical_columns = ['University Rating']
+                                    # X_encoded = pd.get_dummies(X, columns=categorical_columns, drop_first=True)
+
+                                    # # Split the dataset into train and test sets
+                                    # X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=42)
+
+                                    # # Initialize models for analysis
+                                    # models = {
+                                    #     'Linear Regression': LinearRegression(),
+                                    #     'Random Forest': RandomForestRegressor(),
+                                    # }
+
+                                    # # Loop through each University Rating
+                                    # for category in X_encoded['University Rating'].unique():
+                                    #     print(f"University Rating: {category}")
+                                        
+                                    #     # Prepare datasets for the current category
+                                    #     X_train_category = X_train[X_train['University Rating'] == category]
+                                    #     y_train_category = y_train[X_train_category.index]
+                                    #     X_test_category = X_test[X_test['University Rating'] == category]
+                                    #     y_test_category = y_test[X_test_category.index]
+
+                                    #     # Train and evaluate models
+                                    #     for model_name, model in models.items():
+                                    #         print(f"\nModel: {model_name}")
+                                            
+                                    #         # Train the model
+                                    #         model.fit(X_train_category, y_train_category)
+                                            
+                                    #         # Make predictions
+                                    #         y_pred = model.predict(X_test_category)
+                                            
+                                    #         # Calculate Mean Squared Error
+                                    #         mse = mean_squared_error(y_test_category, y_pred)
+                                    #         print("Mean Squared Error:", mse)
+# --------------------------------------------------------------------------------------------------------------------------------
+# Creating a new column 'University Rank Category' that categorizes the university ranking based on specified bins. Using a box plot to visualize the distribution of admission chances across different university rank categories. Printing summary statistics for each university rank category using the describe() function.
+# --------------------------------------------------------------------------------------------------------------------------------
+
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+from sklearn.linear_model import LinearRegression
+
+# Load your dataset and preprocess it
+df = pd.read_csv('Admission_Predict.csv')
+# ... Perform preprocessing steps ...
+
+# Define your features and target variable
+X = df.drop('Chance of Admit ', axis=1)
+y = df['Chance of Admit ']
+
+# Perform one-hot encoding on your features
+X_encoded = pd.get_dummies(X, drop_first=True)
+
+# Split the dataset into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X_encoded, y, test_size=0.2, random_state=42)
+
+# Step 1: Feature Importance Selection using RandomForestRegressor
+rf_model = RandomForestRegressor()
+rf_model.fit(X_train, y_train)
+
+# Get feature importances
+feature_importances = rf_model.feature_importances_
+
+# Create a list of feature names
+feature_names = list(X_train.columns)
+
+# Create a dictionary to store feature importance scores
+feature_importance_dict = dict(zip(feature_names, feature_importances))
+
+# Select the top 3 or 4 features with the highest importance scores
+important_features = sorted(feature_importance_dict, key=feature_importance_dict.get, reverse=True)[:3]
+
+# Step 2: Model Selection and Analysis
+# Prepare datasets with only important features
+X_train_selected = X_train[important_features]
+X_test_selected = X_test[important_features]
+
+# Initialize models for analysis
+models = {
+    'Linear Regression': LinearRegression(),
+    'Random Forest': RandomForestRegressor(),
+}
+
+# ... Rest of your code ...
+
+# Train and evaluate selected models
+for model_name, model in models.items():
+    # Train the model on the selected features
+    model.fit(X_train_selected, y_train)
+
+    # Make predictions
+    y_pred = model.predict(X_test_selected)
+
+    # Calculate RMSE
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+
+    print(f"{model_name} RMSE: {rmse:.2f}")
