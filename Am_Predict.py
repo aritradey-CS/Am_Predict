@@ -98,3 +98,32 @@ plt.title('Predicted vs. Actual Values with Regression Line')
 plt.xlabel('Actual Values')
 plt.ylabel('Predicted Values')
 plt.show()
+
+# 01) Dividing Data into Categories:
+# You can create a new column in your DataFrame to categorize university rankings into U1, U2, U3, U4, and U5. You can use the pd.cut() function to create these categories based on the university ranking values.
+
+# 02) Creating Supportive Figures and Text:
+# You can create visualizations or summaries that show the distribution of acceptance chances for each university ranking category. This can help provide insights into how university ranking might affect admission chances.
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# ... (Your existing imports and code)
+
+# Step 1: Categorize University Ranking
+df['University Rank Category'] = pd.cut(df['University Rating'], bins=[0, 1, 2, 3, 4, 5], labels=['U1', 'U2', 'U3', 'U4', 'U5'])
+
+# Step 2: Create Supportive Figures and Text
+plt.figure(figsize=(12, 6))
+sns.boxplot(x='University Rank Category', y='Chance of Admit ', data=df)
+plt.title('Distribution of Admission Chances by University Rank Category')
+plt.xlabel('University Rank Category')
+plt.ylabel('Chance of Admission')
+plt.show()
+
+# Print summary statistics for each university rank category
+summary = df.groupby('University Rank Category')['Chance of Admit '].describe()
+print(summary)
+
