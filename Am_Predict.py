@@ -823,3 +823,79 @@ plt.xlabel('Feature Importance')
 plt.ylabel('Feature')
 plt.title('Feature Importances')
 plt.show()
+
+
+
+                # --------------------------------------------------------------------------------------------------------------------
+                This Above code uses regression models (RandomForestRegressor) and calculates the Mean Squared Error (MSE) instead of confusion matrices and F1 scores, as these metrics are more suitable for regression tasks. Please make sure that the target variable 'Chance of Admit ' is continuous for this analysis.
+                # --------------------------------------------------------------------------------------------------------------------
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+
+# Load and preprocess your dataset
+df = pd.read_csv('Admission_Predict.csv')
+# ... Preprocessing steps ...
+# Assuming 'University Rating' is a categorical feature
+df['University Rank Category'] = 'U' + df['University Rating'].astype(str)
+
+# Define the categorical columns you want to one-hot encode
+categorical_columns = ['University Rank Category']  # Add more columns if needed
+
+# Perform one-hot encoding on categorical columns
+df_encoded = pd.get_dummies(df, columns=categorical_columns, drop_first=True)
+
+# Define features and target variable
+X = df_encoded.drop('Chance of Admit ', axis=1)
+y = df_encoded['Chance of Admit ']
+
+# Initialize Random Forest Regressor
+model = RandomForestRegressor()
+
+# Create a dictionary to store MSE and F1 scores for each category
+performance_results = {}
+
+# Loop through selected University Rank Categories
+selected_categories = ['U4', 'U5', 'U2', 'U3']
+for category in selected_categories:
+    print(f"University Rank Category: {category}")
+
+    # Filter data for the current category
+    category_data = df_encoded[df_encoded['University Rank Category_' + category] == 1]
+
+    # Prepare datasets for the current category
+    X_category = category_data.drop('Chance of Admit ', axis=1)
+    y_category = category_data['Chance of Admit ']
+    X_train_category, X_test_category, y_train_category, y_test_category = train_test_split(X_category, y_category, test_size=0.2, random_state=42)
+
+    # Train the model
+    model.fit(X_train_category, y_train_category)
+
+    # Make predictions
+    y_pred = model.predict(X_test_category)
+
+    # Calculate MSE
+    mse = mean_squared_error(y_test_category, y_pred)
+
+    # Store results in the dictionary
+    performance_results[category] = {'mse': mse}
+
+# Create a DataFrame to display the performance results
+results_df = pd.DataFrame(performance_results).T
+
+# Display the performance results table
+print("Performance Analysis:")
+print(results_df)
+
+# Plot MSE scores
+plt.figure(figsize=(10, 6))
+sns.barplot(data=results_df, x=results_df.index, y='mse')
+plt.xlabel('University Rank Category')
+plt.ylabel('Mean Squared Error')
+plt.title('Mean Squared Error by University Rank Category')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
