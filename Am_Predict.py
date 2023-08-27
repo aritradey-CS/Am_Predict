@@ -714,3 +714,51 @@ y_pred = model.predict(X_test)
 mse = mean_squared_error(y_test, y_pred)
 print("Mean Squared Error:", mse)
 
+# As for summarizing the performance analysis for all categories, since you're working on a regression task (predicting 'Chance of Admit '), the concepts like confusion matrix and F1 score used in classification tasks are not applicable. Instead, you can focus on metrics like Mean Squared Error (MSE) and R-squared (R^2) to assess the regression performance. If you need more specific guidance on creating a table or chart for summarizing performance, feel free to ask.
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import ExtraTreesRegressor
+from sklearn.metrics import mean_squared_error
+
+# Load and preprocess your dataset
+df = pd.read_csv('Admission_Predict.csv')
+# ... Preprocessing steps ...
+# Assuming 'University Rating' is a categorical feature
+df['University Rank Category'] = 'U' + df['University Rating'].astype(str)
+
+# Define the categorical columns you want to one-hot encode
+categorical_columns = ['University Rank Category']  # Add more columns if needed
+
+# Perform one-hot encoding on categorical columns
+df_encoded = pd.get_dummies(df, columns=categorical_columns, drop_first=True)
+
+# Define features and target variable
+X = df_encoded.drop('Chance of Admit ', axis=1)
+y = df_encoded['Chance of Admit ']
+
+# Split the dataset into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize Extra Trees Regressor
+model = ExtraTreesRegressor()
+
+# Train the model
+model.fit(X_train, y_train)
+
+# Get feature importances
+feature_importances = model.feature_importances_
+
+# Create a DataFrame to display feature importances
+feature_importance_df = pd.DataFrame({'Feature': X.columns, 'Importance': feature_importances})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+
+# Display the feature importances
+print("Feature Importances:")
+print(feature_importance_df)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Calculate Mean Squared Error
+mse = mean_squared_error(y_test, y_pred)
+print("Mean Squared Error:", mse)
