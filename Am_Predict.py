@@ -606,3 +606,111 @@ plt.legend()
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
+
+
+# _____________________________________________________________________________________________________________________
+finding out the most important features (not taking all that you explored before).
+And finally summarize the performance analysis (confusion matrix, F1 score, etc ) for all categories U1, U2,.. in a table or chart
+# _____________________________________________________________________________________________________________________
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, f1_score
+
+# Load and preprocess your dataset
+df = pd.read_csv('Admission_Predict.csv')
+# ... Preprocessing steps ...
+# Assuming 'University Rating' is a categorical feature
+df['University Rank Category'] = 'U' + df['University Rating'].astype(str)
+
+# Define the categorical columns you want to one-hot encode
+categorical_columns = ['University Rank Category']  # Add more columns if needed
+
+# Perform one-hot encoding on categorical columns
+df_encoded = pd.get_dummies(df, columns=categorical_columns, drop_first=True)
+
+# Define features and target variable
+X = df_encoded.drop('Chance of Admit ', axis=1)
+y = df_encoded['Chance of Admit ']
+
+# Initialize models for analysis
+models = {
+    'Random Forest': RandomForestClassifier()
+}
+
+# Create a dictionary to store performance metrics for each model and category
+performance_results = {model_name: {category: {'confusion_matrix': None, 'f1_score': None} for category in df['University Rank Category'].unique()} for model_name in models.keys()}
+
+# Loop through each University Rank Category
+for category in df['University Rank Category'].unique():
+    print(f"University Rank Category: {category}")
+
+    # Filter data for the current category
+    category_data = df_encoded[df_encoded['University Rank Category_' + category] == 1]
+
+    # Prepare datasets for the current category
+    X_category = category_data.drop('Chance of Admit ', axis=1)
+    y_category = category_data['Chance of Admit ']
+    X_train_category, X_test_category, y_train_category, y_test_category = train_test_split(X_category, y_category, test_size=0.2, random_state=42)
+
+    # Train and evaluate selected models
+    for model_name, model in models.items():
+        print(f"\nModel: {model_name}")
+
+        # Train the model
+        model.fit(X_train_category, y_train_category)
+
+        # Make predictions
+        y_pred = model.predict(X_test_category)
+
+        # Calculate confusion matrix and F1 score
+        conf_matrix = confusion_matrix(y_test_category, y_pred)
+        f1 = f1_score(y_test_category, y_pred)
+
+        # Store results in the dictionary
+        performance_results[model_name][category]['confusion_matrix'] = conf_matrix
+        performance_results[model_name][category]['f1_score'] = f1
+
+# Display the performance results dictionary
+print(performance_results)
+# --------------------------------------------------------------------------------------------------------------------------
+# Remember that this is a regression task, and the evaluation metric is Mean Squared Error (MSE) since you are predicting a continuous numerical value ('Chance of Admit '). If you still want to perform classification using classification models like Linear Regression, let me know, and I'll guide you accordingly.
+# --------------------------------------------------------------------------------------------------------------------------
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import ExtraTreesRegressor
+from sklearn.metrics import mean_squared_error
+
+# Load and preprocess your dataset
+df = pd.read_csv('Admission_Predict.csv')
+# ... Preprocessing steps ...
+# Assuming 'University Rating' is a categorical feature
+df['University Rank Category'] = 'U' + df['University Rating'].astype(str)
+
+# Define the categorical columns you want to one-hot encode
+categorical_columns = ['University Rank Category']  # Add more columns if needed
+
+# Perform one-hot encoding on categorical columns
+df_encoded = pd.get_dummies(df, columns=categorical_columns, drop_first=True)
+
+# Define features and target variable
+X = df_encoded.drop('Chance of Admit ', axis=1)
+y = df_encoded['Chance of Admit ']
+
+# Split the dataset into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize Extra Trees Regressor
+model = ExtraTreesRegressor()
+
+# Train the model
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Calculate Mean Squared Error
+mse = mean_squared_error(y_test, y_pred)
+print("Mean Squared Error:", mse)
+
