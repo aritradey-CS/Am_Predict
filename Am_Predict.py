@@ -447,3 +447,162 @@ plt.xticks(rotation=0)
 plt.legend(title='Model')
 plt.show()
  
+# use the Pandas library to store the Mean Squared Error (MSE) values for each model and University Rank Category in a DataFrame. Here's how you can m
+
+                        import pandas as pd
+                        from sklearn.model_selection import train_test_split
+                        from sklearn.ensemble import RandomForestRegressor
+                        from sklearn.linear_model import LinearRegression
+                        from sklearn.metrics import mean_squared_error
+
+                        # Load and preprocess your dataset
+                        # df = pd.read_csv('your_dataset.csv')
+                        # ... Preprocessing steps ...
+                        # Assuming 'University Rating' is a categorical feature
+                        df['University Rank Category'] = 'U' + df['University Rating'].astype(str)
+
+                        # Define the categorical columns you want to one-hot encode
+                        categorical_columns = ['University Rank Category']  # Add more columns if needed
+
+                        # Perform one-hot encoding on categorical columns
+                        df_encoded = pd.get_dummies(df, columns=categorical_columns, drop_first=True)
+
+                        # Define features and target variable
+                        X = df_encoded.drop('Chance of Admit ', axis=1)
+                        y = df_encoded['Chance of Admit ']
+
+                        # Split the dataset into train and test sets
+                        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+                        # Initialize models for analysis
+                        models = {
+                            'Random Forest': RandomForestRegressor(),
+                            'Linear Regression': LinearRegression()
+                        }
+
+                        # Create a dictionary to store MSE values for each model and category
+                        mse_results = {model_name: [] for model_name in models.keys()}
+
+                        # Loop through each University Rank Category
+                        categories = df['University Rank Category'].unique()
+                        for category in categories:
+                            print(f"University Rank Category: {category}")
+
+                            # Filter data for the current category
+                            column_name = 'University Rank Category_' + category
+                            # category_data = df_encoded[df_encoded[column_name] == 1]
+
+                            # Prepare datasets for the current category
+                            X_train_category = X_train[X_train.index.isin(category_data.index)]
+                            X_test_category = X_test[X_test.index.isin(category_data.index)]
+                            y_train_category = y_train[y_train.index.isin(category_data.index)]
+                            y_test_category = y_test[y_test.index.isin(category_data.index)]
+
+                            # Train and evaluate selected models
+                            for model_name, model in models.items():
+                                print(f"\nModel: {model_name}")
+
+                                # Train the model
+                                model.fit(X_train_category, y_train_category)
+
+                                # Make predictions
+                                y_pred = model.predict(X_test_category)
+
+                                # Calculate MSE
+                                mse = mean_squared_error(y_test_category, y_pred)
+                                mse_results[model_name].append(mse)
+
+                        # Create a DataFrame for the performance analysis table
+                        performance_df = pd.DataFrame(mse_results, index=categories)
+                        performance_df.index.name = 'University Rank Category'
+
+                        # Display the performance analysis table
+                        print(performance_df)
+
+
+
+# convey the performance analysis more effectively. One way to visualize the MSE values for each model and University Rank Category is by using a bar plot. Here's how you can modify the code to create a bar plot using the Seaborn library:
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
+# Load and preprocess your dataset
+# df = pd.read_csv('your_dataset.csv')
+# ... Preprocessing steps ...
+# Assuming 'University Rating' is a categorical feature
+df['University Rank Category'] = 'U' + df['University Rating'].astype(str)
+
+# Define the categorical columns you want to one-hot encode
+categorical_columns = ['University Rank Category']  # Add more columns if needed
+
+# Perform one-hot encoding on categorical columns
+df_encoded = pd.get_dummies(df, columns=categorical_columns, drop_first=True)
+
+# Define features and target variable
+X = df_encoded.drop('Chance of Admit ', axis=1)
+y = df_encoded['Chance of Admit ']
+
+# Split the dataset into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize models for analysis
+models = {
+    'Random Forest': RandomForestRegressor(),
+    'Linear Regression': LinearRegression()
+}
+
+# Create a dictionary to store MSE values for each model and category
+mse_results = {model_name: [] for model_name in models.keys()}
+
+# Loop through each University Rank Category
+categories = df['University Rank Category'].unique()
+for category in categories:
+    print(f"University Rank Category: {category}")
+
+    # Filter data for the current category
+    column_name = 'University Rank Category_' + category
+    # category_data = df_encoded[df_encoded[column_name] == 1]
+
+    # Prepare datasets for the current category
+    X_train_category = X_train[X_train.index.isin(category_data.index)]
+    X_test_category = X_test[X_test.index.isin(category_data.index)]
+    y_train_category = y_train[y_train.index.isin(category_data.index)]
+    y_test_category = y_test[y_test.index.isin(category_data.index)]
+
+    # Train and evaluate selected models
+    for model_name, model in models.items():
+        print(f"\nModel: {model_name}")
+
+        # Train the model
+        model.fit(X_train_category, y_train_category)
+
+        # Make predictions
+        y_pred = model.predict(X_test_category)
+
+        # Calculate MSE
+        mse = mean_squared_error(y_test_category, y_pred)
+        mse_results[model_name].append(mse)
+
+# Create a DataFrame for the performance analysis table
+performance_df = pd.DataFrame(mse_results, index=categories)
+performance_df.index.name = 'University Rank Category'
+
+# Display the performance analysis table
+print(performance_df)
+
+# Create a bar plot using Seaborn
+plt.figure(figsize=(10, 6))
+sns.barplot(data=performance_df, x=performance_df.index, y='Random Forest', label='Random Forest')
+sns.barplot(data=performance_df, x=performance_df.index, y='Linear Regression', label='Linear Regression')
+plt.xlabel('University Rank Category')
+plt.ylabel('Mean Squared Error')
+plt.title('Performance Analysis by Model and University Rank Category')
+plt.legend()
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
