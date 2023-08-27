@@ -762,3 +762,64 @@ y_pred = model.predict(X_test)
 # Calculate Mean Squared Error
 mse = mean_squared_error(y_test, y_pred)
 print("Mean Squared Error:", mse)
+
+
+                    # --------------------------------------------------------------------------------------------------
+# To make the displayed output more readable and organized, you can format the printed information and create visualizations for the feature importances and performance metrics. Here's how you can modify the code to achieve that
+                    # --------------------------------------------------------------------------------------------------
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import ExtraTreesRegressor
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+
+# Load and preprocess your dataset
+df = pd.read_csv('Admission_Predict.csv')
+# ... Preprocessing steps ...
+# Assuming 'University Rating' is a categorical feature
+df['University Rank Category'] = 'U' + df['University Rating'].astype(str)
+
+# Define the categorical columns you want to one-hot encode
+categorical_columns = ['University Rank Category']  # Add more columns if needed
+
+# Perform one-hot encoding on categorical columns
+df_encoded = pd.get_dummies(df, columns=categorical_columns, drop_first=True)
+
+# Define features and target variable
+X = df_encoded.drop('Chance of Admit ', axis=1)
+y = df_encoded['Chance of Admit ']
+
+# Split the dataset into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize Extra Trees Regressor
+model = ExtraTreesRegressor()
+
+# Train the model
+model.fit(X_train, y_train)
+
+# Get feature importances
+feature_importances = model.feature_importances_
+
+# Create a DataFrame to display feature importances
+feature_importance_df = pd.DataFrame({'Feature': X.columns, 'Importance': feature_importances})
+feature_importance_df = feature_importance_df.sort_values(by='Importance', ascending=False)
+
+# Display the feature importances
+print("Feature Importances:")
+print(feature_importance_df)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Calculate Mean Squared Error
+mse = mean_squared_error(y_test, y_pred)
+print("\nMean Squared Error:", mse)
+
+# Plot feature importances
+plt.figure(figsize=(10, 6))
+plt.barh(feature_importance_df['Feature'], feature_importance_df['Importance'])
+plt.xlabel('Feature Importance')
+plt.ylabel('Feature')
+plt.title('Feature Importances')
+plt.show()
